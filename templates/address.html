@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<a href="{% url 'user:logout' %}">Logout</a>
+
+<form action="/user/address" method="post">
+    {% csrf_token %}
+    <select name="state" id="state">
+        {% for state in states %}
+        <option>{{state}}</option>
+        {% endfor %}
+    </select>
+    <br>
+    <select name="district" id="district">
+
+    </select>
+    <br>
+    <select name="sub_district" id="sub_district">
+
+    </select>
+    <br>
+    <select name="village" id="village">
+
+    </select>
+    <br>
+
+    <input type="submit" value="submit">
+</form>
+
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"
+        integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+        crossorigin="anonymous"></script>
+
+<script>
+
+    function set_options(element_id, options) {
+        var output = [];
+        $.each(options, function(key, value)
+        {
+          output.push('<option value="'+ value +'">'+ value +'</option>');
+        });
+        $('#'+ element_id).html(output.join(''));
+    }
+
+    function clear_options(element_id) {
+        $("#"+element_id).html("");
+    }
+
+    function update_fields(param, value, target_id) {
+        $.ajax({
+         type: "GET",
+         url: "/user/address_api?"+ param+ "="+ value,
+         success: function(response, textStatus, xhr){
+            set_options(target_id, response[target_id + 's']);
+         },
+         error: function(xhr, textStatus, errorThrown){
+            console.log("Error raised: " + errorThrown)
+         }
+      });
+    }
+
+    $(document).ready(function(){
+
+        $("#state").on('click', function(){
+            clear_options("district");
+            clear_options("sub_district");
+            clear_options("village");
+            var param = "state";
+            var value = $("#state").val();
+            update_fields(param, value, 'district');
+        });
+
+        $("#district").on('click', function(){
+            clear_options("sub_district");
+            clear_options("village");
+            var param = "district";
+            var value = $("#district").val();
+            update_fields(param, value, 'sub_district');
+        });
+
+        $("#sub_district").on('click', function(){
+            clear_options("village");
+            var param = "sub_district";
+            var value = $("#sub_district").val();
+            update_fields(param, value, 'village');
+        });
+    });
+</script>
+</body>
+</html>
